@@ -70,64 +70,22 @@ It provides end-to-end management of customer lifecycles, interactive sales deal
 ```
 salesflow-crm/
 ├── backend/
-│   ├── alembic/              # Database schema migrations
-│   │   ├── versions/         # Revision migration scripts
-│   │   └── env.py            # Migration runtime config
+│   ├── alembic/              # Database migrations
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py           # FastAPI entrypoint & middleware
-│   │   ├── core/             # Configuration & security
-│   │   │   ├── config.py     # Pydantic BaseSettings (.env loading)
-│   │   │   ├── security.py   # JWT encoding/decoding & bcrypt hashing
-│   │   │   └── dependencies.py # Auth & RBAC dependencies
-│   │   ├── database/         # Database engine & sessionmaker
-│   │   │   └── database.py
-│   │   ├── models/           # SQLAlchemy 2.0 ORM models
-│   │   │   ├── user.py
-│   │   │   ├── customer.py
-│   │   │   ├── activity.py
-│   │   │   ├── opportunity.py
-│   │   │   └── follow_up.py
-│   │   ├── schemas/          # Pydantic v2 validation models
-│   │   │   ├── auth.py
-│   │   │   ├── user.py
-│   │   │   ├── customer.py
-│   │   │   ├── activity.py
-│   │   │   ├── opportunity.py
-│   │   │   ├── follow_up.py
-│   │   │   └── dashboard.py
-│   │   ├── services/         # Layered business logic
-│   │   │   ├── auth_service.py
-│   │   │   ├── customer_service.py
-│   │   │   ├── opportunity_service.py
-│   │   │   ├── activity_service.py
-│   │   │   ├── follow_up_service.py
-│   │   │   └── dashboard_service.py
-│   │   └── routers/          # FastAPI REST endpoints
-│   │       ├── auth.py
-│   │       ├── users.py
-│   │       ├── customers.py
-│   │       ├── activities.py
-│   │       ├── opportunities.py
-│   │       ├── follow_ups.py
-│   │       └── dashboard.py
-│   ├── tests/                # Automated pytest suite (32 tests)
-│   │   ├── conftest.py       # Isolated database & auth fixtures
-│   │   ├── test_auth.py
-│   │   ├── test_customers.py
-│   │   ├── test_opportunities.py
-│   │   ├── test_activities.py
-│   │   ├── test_follow_ups.py
-│   │   └── test_dashboard.py
-│   ├── Dockerfile
+│   │   ├── core/             # Configuration, authentication & RBAC
+│   │   ├── database/         # Database connection & sessions
+│   │   ├── models/           # SQLAlchemy models
+│   │   ├── schemas/          # Pydantic schemas
+│   │   ├── services/         # Business logic
+│   │   └── routers/          # FastAPI API routes
+│   ├── tests/                # Automated tests
 │   ├── requirements.txt
 │   ├── alembic.ini
 │   └── .env.example
-├── frontend/                 # Client UI application
-│   ├── index.html            # Single-page application structure
-│   ├── app.js                # Client controller & API layer
-│   └── style.css             # Enterprise styling & layout
-├── docker-compose.yml        # Docker composition (MySQL + Backend + Frontend)
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
 ├── .gitignore
 └── README.md
 ```
@@ -135,6 +93,9 @@ salesflow-crm/
 ---
 
 ## 🗄️ Database Schema
+
+SalesFlow CRM uses a relational MySQL schema centered around users, customers,
+opportunities, activities, and follow-ups.
 
 ```mermaid
 erDiagram
@@ -146,68 +107,6 @@ erDiagram
     CUSTOMERS ||--o{ ACTIVITIES : "has"
     CUSTOMERS ||--o{ OPPORTUNITIES : "has"
     CUSTOMERS ||--o{ FOLLOW_UPS : "has"
-
-    USERS {
-        int id PK
-        string name
-        string email UK
-        string hashed_password
-        string role
-        datetime created_at
-        datetime updated_at
-    }
-
-    CUSTOMERS {
-        int id PK
-        string name
-        string email
-        string phone
-        string company
-        string industry
-        string status
-        string source
-        int assigned_to FK
-        text notes
-        datetime created_at
-        datetime updated_at
-    }
-
-    ACTIVITIES {
-        int id PK
-        int customer_id FK
-        int user_id FK
-        string activity_type
-        string title
-        text description
-        datetime created_at
-    }
-
-    OPPORTUNITIES {
-        int id PK
-        int customer_id FK
-        string title
-        text description
-        float amount
-        string stage
-        float probability
-        datetime expected_close_date
-        int assigned_to FK
-        datetime created_at
-        datetime updated_at
-    }
-
-    FOLLOW_UPS {
-        int id PK
-        int customer_id FK
-        int user_id FK
-        string title
-        text description
-        string follow_up_type
-        datetime scheduled_at
-        boolean completed
-        datetime created_at
-        datetime updated_at
-    }
 ```
 
 ---
@@ -315,40 +214,18 @@ Expected output:
 
 ---
 
-## 📡 API Reference
+## 📡 API
 
-### Authentication
-- `POST /api/auth/register` - Create a new user account
-- `POST /api/auth/login` - Authenticate and obtain JWT access token
-- `GET  /api/auth/me` - Get profile of the current authenticated user
+The backend exposes RESTful APIs for:
 
-### Customers
-- `GET    /api/customers` - Paginated customer list (`?search=`, `?status=`, `?page=`, `?page_size=`)
-- `GET    /api/customers/{id}` - Retrieve customer record
-- `POST   /api/customers` - Create customer record
-- `PUT    /api/customers/{id}` - Update customer
-- `DELETE /api/customers/{id}` - Delete customer
+- Authentication and user management
+- Customer management
+- Sales opportunities and pipeline stages
+- Customer activities and timelines
+- Follow-up task management
+- Dashboard analytics
 
-### Pipeline & Opportunities
-- `GET    /api/opportunities` - List deals (`?customer_id=`, `?stage=`)
-- `GET    /api/opportunities/{id}` - Retrieve deal details
-- `POST   /api/opportunities` - Create sales opportunity
-- `PUT    /api/opportunities/{id}` - Update deal amount, probability, or stage
-- `DELETE /api/opportunities/{id}` - Delete deal
+Interactive API documentation is available through FastAPI:
 
-### Activities & Follow-ups
-- `GET    /api/customers/{customer_id}/activities` - Customer activity timeline
-- `POST   /api/customers/{customer_id}/activities` - Log interaction (`CALL`, `EMAIL`, `MEETING`, etc.)
-- `GET    /api/follow-ups` - List scheduled follow-ups (`?filter_status=today|upcoming|completed|all`)
-- `POST   /api/follow-ups` - Schedule follow-up task
-- `PUT    /api/follow-ups/{id}` - Update task or toggle completion
-- `DELETE /api/follow-ups/{id}` - Remove follow-up
-
-### Dashboard
-- `GET    /api/dashboard/summary` - Aggregated CRM metrics and distributions
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
