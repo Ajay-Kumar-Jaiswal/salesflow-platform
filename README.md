@@ -297,20 +297,6 @@ Open `http://localhost:3000` in your browser.
 
 ---
 
-## 🐳 Docker Deployment
-
-The entire stack (MySQL 8.0, FastAPI backend, and Nginx frontend) is configured to run with a single command:
-
-```bash
-docker compose up --build
-```
-
-- Frontend: `http://localhost:3000`
-- Backend API & Swagger: `http://localhost:8000/docs`
-- MySQL Database: `localhost:3306`
-
----
-
 ## 🧪 Running Automated Tests
 
 SalesFlow CRM includes a test suite covering authentication, customer CRUD, pagination, filtering, deal pipeline stages, activities, follow-ups, and dashboard aggregations.
