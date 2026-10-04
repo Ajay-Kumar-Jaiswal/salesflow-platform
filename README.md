@@ -92,21 +92,10 @@ salesflow-crm/
 
 ---
 
-## 🗄️ Database Schema
+## 🗄️ Database
 
-SalesFlow CRM uses a relational MySQL schema centered around users, customers,
+SalesFlow CRM uses MySQL with a relational schema connecting users, customers,
 opportunities, activities, and follow-ups.
-
-```mermaid
-erDiagram
-    USERS ||--o{ CUSTOMERS : "assigned to"
-    USERS ||--o{ ACTIVITIES : "performed by"
-    USERS ||--o{ OPPORTUNITIES : "owns"
-    USERS ||--o{ FOLLOW_UPS : "assigned to"
-
-    CUSTOMERS ||--o{ ACTIVITIES : "has"
-    CUSTOMERS ||--o{ OPPORTUNITIES : "has"
-    CUSTOMERS ||--o{ FOLLOW_UPS : "has"
 ```
 
 ---
