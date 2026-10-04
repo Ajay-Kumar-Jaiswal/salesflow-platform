@@ -111,7 +111,6 @@ salesflow-crm/
 
 SalesFlow CRM uses MySQL with a relational schema connecting users, customers,
 opportunities, activities, and follow-ups.
-```
 
 ---
 
